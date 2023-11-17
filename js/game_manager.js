@@ -1,5 +1,5 @@
 function GameManager(size, InputManager, Actuator, StorageManager) {
-  this.size           = size; // Size of the grid
+  this.size           = size; // Tamaño de la cuadrícula
   this.inputManager   = new InputManager;
   this.storageManager = new StorageManager;
   this.actuator       = new Actuator;
@@ -16,17 +16,17 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
 // Restart the game
 GameManager.prototype.restart = function () {
   this.storageManager.clearGameState();
-  this.actuator.continue(); // Clear the game won/lost message
+  this.actuator.continue(); //Borrar el mensaje de partida ganada/perdida
   this.setup();
 };
 
-// Keep playing after winning (allows going over 2048)
+// Seguir jugando después de ganar (permite superar 2048)
 GameManager.prototype.keepPlaying = function () {
   this.keepPlaying = true;
-  this.actuator.continue(); // Clear the game won/lost message
+  this.actuator.continue(); // Borrar el mensaje de partida ganada/perdida
 };
 
-// Return true if the game is lost, or has won and the user hasn't kept playing
+// Devuelve true si el juego está perdido, o ha ganado y el usuario no ha seguido jugando
 GameManager.prototype.isGameTerminated = function () {
   if (this.over || (this.won && !this.keepPlaying)) {
     return true;
@@ -35,14 +35,14 @@ GameManager.prototype.isGameTerminated = function () {
   }
 };
 
-// Set up the game
+// Preparar el juego
 GameManager.prototype.setup = function () {
   var previousState = this.storageManager.getGameState();
 
-  // Reload the game from a previous game if present
+  // Recargar el juego desde una partida anterior si existe
   if (previousState) {
     this.grid        = new Grid(previousState.grid.size,
-                                previousState.grid.cells); // Reload grid
+                                previousState.grid.cells); // Recargar cuadrícula
     this.score       = previousState.score;
     this.over        = previousState.over;
     this.won         = previousState.won;
@@ -54,22 +54,22 @@ GameManager.prototype.setup = function () {
     this.won         = false;
     this.keepPlaying = false;
 
-    // Add the initial tiles
+    // Añadir las fichas iniciales
     this.addStartTiles();
   }
 
-  // Update the actuator
+  // Actualizar el accionador
   this.actuate();
 };
 
-// Set up the initial tiles to start the game with
+// Coloca las fichas iniciales con las que empezarás el juego
 GameManager.prototype.addStartTiles = function () {
   for (var i = 0; i < this.startTiles; i++) {
     this.addRandomTile();
   }
 };
 
-// Adds a tile in a random position
+// Añade una ficha en una posición aleatoria
 GameManager.prototype.addRandomTile = function () {
   if (this.grid.cellsAvailable()) {
     var rand = Math.random();
@@ -80,13 +80,13 @@ GameManager.prototype.addRandomTile = function () {
   }
 };
 
-// Sends the updated grid to the actuator
+// Envía la cuadrícula actualizada al accionador
 GameManager.prototype.actuate = function () {
   if (this.storageManager.getBestScore() < this.score) {
     this.storageManager.setBestScore(this.score);
   }
 
-  // Clear the state when the game is over (game over only, not win)
+  // Borrar el estado cuando el juego termina (sólo cuando termina, no cuando se gana)
   if (this.over) {
     this.storageManager.clearGameState();
   } else {
@@ -103,7 +103,7 @@ GameManager.prototype.actuate = function () {
 
 };
 
-// Represent the current game as an object
+// Representar la partida actual como un objeto
 GameManager.prototype.serialize = function () {
   return {
     grid:        this.grid.serialize(),
@@ -114,7 +114,7 @@ GameManager.prototype.serialize = function () {
   };
 };
 
-// Save all tile positions and remove merger info
+// Guardar todas las posiciones de las baldosas y eliminar la información de fusión
 GameManager.prototype.prepareTiles = function () {
   this.grid.eachCell(function (x, y, tile) {
     if (tile) {
@@ -124,7 +124,7 @@ GameManager.prototype.prepareTiles = function () {
   });
 };
 
-// Move a tile and its representation
+// Mover una ficha y su representación
 GameManager.prototype.moveTile = function (tile, cell) {
   this.grid.cells[tile.x][tile.y] = null;
   this.grid.cells[cell.x][cell.y] = tile;
@@ -132,7 +132,7 @@ GameManager.prototype.moveTile = function (tile, cell) {
 };
 
 GameManager.prototype.canMerge = function (cellValue1, cellValue2) {
-  // Use heuristics rather than a lookup, because... it's fun.
+  // 
   if (cellValue1 === 1 && cellValue2 === 1) return true;
   if (cellValue1 > cellValue2) {
      if (cellValue1 <= cellValue2 * 2) return true;
